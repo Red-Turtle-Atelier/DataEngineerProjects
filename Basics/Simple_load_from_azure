@@ -1,0 +1,27 @@
+---> set Role Context
+USE ROLE ACCOUNTADMIN;
+
+---> set Warehouse Context
+USE WAREHOUSE SNOWFLAKE_LEARNING_WH;
+
+---> set the Database
+USE DATABASE SNOWFLAKE_LEARNING_DB;
+
+---> set the Schema
+SET user_name = current_user();
+SET schema_name = CONCAT($user_name, '_LOAD_DATA_FROM_CLOUD');
+USE SCHEMA IDENTIFIER($schema_name);
+
+COPY INTO sales_bronze
+  FROM (SELECT 
+            $1,
+            $2,
+            $3,
+            $4,
+            CURRENT_TIMESTAMP
+  FROM @my_azure_stage)
+    FILES = ( 'Sales_2.csv')
+    FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = ',' SKIP_HEADER = 1);
+
+
+SELECT * FROM sales_bronze;
